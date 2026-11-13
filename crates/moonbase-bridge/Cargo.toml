@@ -1,0 +1,22 @@
+[package]
+name = "moonbase-bridge"
+description = "Local execution engine for MoonBase Studio"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+bridge-contract.workspace = true
+clap.workspace = true
+directories.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-appender.workspace = true
+tracing-subscriber.workspace = true
+
+[lints]
+workspace = true

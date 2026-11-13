@@ -1,0 +1,10 @@
+# Conventional Commits, matching @commitlint/config-conventional in the TypeScript repositories.
+style = "conventional"
+allowed_types = ["build", "chore", "ci", "docs", "feat", "fix", "perf", "refactor", "revert", "style", "test"]
+subject_length = 100
+line_length = 100
+subject_capitalized = false
+subject_not_punctuated = true
+imperative_subject = false
+no_fixup = true
+no_wip = true

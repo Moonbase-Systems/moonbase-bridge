@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "rust-lang.rust-analyzer",
+    "tamasfe.even-better-toml",
+    "vadimcn.vscode-lldb",
+    "fill-labs.dependi",
+    "tekumara.typos-vscode",
+    "editorconfig.editorconfig",
+    "skellock.just",
+    "github.vscode-github-actions"
+  ]
+}

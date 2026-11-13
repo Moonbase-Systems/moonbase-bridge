@@ -1,0 +1,19 @@
+# Cargo build output
+/target
+
+# Test reports
+junit.xml
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example

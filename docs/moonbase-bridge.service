@@ -1,0 +1,18 @@
+# Example systemd user unit for Linux.
+#
+#   install -Dm644 docs/moonbase-bridge.service ~/.config/systemd/user/moonbase-bridge.service
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now moonbase-bridge
+#
+# Adjust ExecStart to where the binary lives.
+
+[Unit]
+Description=MoonBase Bridge
+After=pipewire.service
+
+[Service]
+ExecStart=%h/.local/bin/moonbase-bridge
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,81 @@
+# Git hooks run by prek (https://github.com/j178/prek).
+# Install once per clone: `prek install`
+default_install_hook_types = ["pre-commit", "commit-msg", "pre-push"]
+default_stages = ["pre-commit"]
+
+[[repos]]
+repo = "builtin"
+
+[[repos.hooks]]
+id = "check-added-large-files"
+
+[[repos.hooks]]
+id = "check-case-conflict"
+
+[[repos.hooks]]
+id = "check-illegal-windows-names"
+
+[[repos.hooks]]
+id = "check-merge-conflict"
+
+[[repos.hooks]]
+id = "check-toml"
+
+[[repos.hooks]]
+id = "check-yaml"
+
+[[repos.hooks]]
+id = "end-of-file-fixer"
+
+[[repos.hooks]]
+id = "mixed-line-ending"
+args = ["--fix=lf"]
+
+[[repos.hooks]]
+id = "trailing-whitespace"
+
+[[repos]]
+repo = "https://github.com/crate-ci/typos"
+rev = "v1.52.2"
+hooks = [{ id = "typos" }]
+
+[[repos]]
+repo = "https://github.com/crate-ci/committed"
+rev = "v1.1.12"
+hooks = [{ id = "committed" }]
+
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "cargo-fmt"
+name = "cargo fmt"
+entry = "cargo fmt --all --check"
+language = "system"
+types = ["rust"]
+pass_filenames = false
+
+[[repos.hooks]]
+id = "taplo-fmt"
+name = "taplo fmt"
+entry = "taplo fmt --check"
+language = "system"
+types = ["toml"]
+
+[[repos.hooks]]
+id = "cargo-clippy"
+name = "cargo clippy"
+entry = "cargo clippy --workspace --all-targets --locked -- -D warnings"
+language = "system"
+types_or = ["rust", "toml"]
+pass_filenames = false
+stages = ["pre-push"]
+
+[[repos.hooks]]
+id = "cargo-nextest"
+name = "cargo nextest"
+entry = "cargo nextest run --workspace --locked"
+language = "system"
+types_or = ["rust", "toml"]
+pass_filenames = false
+stages = ["pre-push"]
