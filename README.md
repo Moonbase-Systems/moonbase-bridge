@@ -60,6 +60,32 @@ Logs go to stderr and to a daily file:
 
 Use `--log-dir` / `MOONBASE_BRIDGE_LOG_DIR` and `--log-filter` / `MOONBASE_BRIDGE_LOG` to change them. On Linux you can run Bridge as a user service, see [`docs/moonbase-bridge.service`](./docs/moonbase-bridge.service).
 
+### Windows from WSL
+
+WSL cannot see cameras, screens, or WASAPI devices, so device work is tested on Windows. You keep one clone in WSL, cross-compile with [cargo-xwin](https://github.com/rust-cross/cargo-xwin), and start the `.exe` from the WSL shell. WSL interop runs it as a normal Windows process. Pure Rust code needs no clang, no Visual Studio, and no sudo. The first build downloads the MSVC CRT and Windows SDK into `~/.cache/cargo-xwin`, which means you accept the Microsoft license.
+
+```bash
+rustup target add x86_64-pc-windows-msvc
+cargo install --locked cargo-xwin watchexec-cli
+```
+
+| Recipe | What it does |
+| --- | --- |
+| `just watch-win` | rebuilds and restarts Bridge on Windows on every change in `crates/` |
+| `just run-win` | builds and starts Bridge on Windows once, with debug logs |
+| `just stop-win` | kills a Bridge left running on Windows (`taskkill`) |
+| `just test-win` | runs the tests as Windows binaries |
+| `just logs-win` | follows the newest log file in `%LOCALAPPDATA%\MoonBase\Bridge\logs` |
+| `just build-win-release` | Windows release binary |
+
+The same recipes are VS Code tasks (`Terminal → Run Task → Bridge: …`). `Bridge: watch on Windows` is the default build task (`Ctrl+Shift+B`).
+
+Bridge on Windows listens on `127.0.0.1`. A browser on Windows reaches it directly. The Studio dev server in WSL is reachable from Windows at `http://localhost:3000` through WSL2 localhost forwarding.
+
+Windows locks a running `.exe`, so a build fails with "Access is denied" while an old instance runs. `run-win` and `watch-win` stop it first. Otherwise run `just stop-win`.
+
+For a native debugger (breakpoints in Media Foundation code), clone the repository on the Windows drive, for example `C:\dev\moonbase-bridge`, and build there with rustup and the Visual Studio Build Tools. Do not build a clone in `/mnt/c` from WSL. It is very slow.
+
 ### Checks
 
 ```bash

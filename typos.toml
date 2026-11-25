@@ -1,5 +1,6 @@
 [files]
-extend-exclude = ["/.git", "Cargo.lock", "target/"]
+# docs/plan.md is written in Polish
+extend-exclude = ["/.git", "Cargo.lock", "target/", "docs/plan.md"]
 ignore-hidden = false
 
 [default.extend-words]
