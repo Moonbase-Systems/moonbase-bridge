@@ -1,0 +1,61 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Bridge: watch on Windows",
+      "detail": "Rebuild and restart the Windows .exe on every change (just watch-win)",
+      "type": "shell",
+      "command": "just watch-win",
+      "isBackground": true,
+      "problemMatcher": ["$rustc-watch"],
+      "presentation": { "panel": "dedicated", "reveal": "always" },
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "Bridge: run on Windows",
+      "detail": "Build and start the Windows .exe once (just run-win)",
+      "type": "shell",
+      "command": "just run-win",
+      "isBackground": true,
+      "problemMatcher": ["$rustc"],
+      "presentation": { "panel": "dedicated", "reveal": "always" }
+    },
+    {
+      "label": "Bridge: stop on Windows",
+      "type": "shell",
+      "command": "just stop-win",
+      "problemMatcher": [],
+      "presentation": { "reveal": "silent" }
+    },
+    {
+      "label": "Bridge: Windows logs",
+      "type": "shell",
+      "command": "just logs-win",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "reveal": "always" }
+    },
+    {
+      "label": "Bridge: test on Windows",
+      "type": "shell",
+      "command": "just test-win",
+      "problemMatcher": ["$rustc"],
+      "group": "test"
+    },
+    {
+      "label": "Bridge: run on Linux",
+      "type": "shell",
+      "command": "just run",
+      "isBackground": true,
+      "problemMatcher": ["$rustc"],
+      "presentation": { "panel": "dedicated", "reveal": "always" }
+    },
+    {
+      "label": "Bridge: test on Linux",
+      "type": "shell",
+      "command": "just test",
+      "problemMatcher": ["$rustc"],
+      "group": { "kind": "test", "isDefault": true }
+    }
+  ]
+}
