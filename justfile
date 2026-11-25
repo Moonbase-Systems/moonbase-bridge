@@ -92,6 +92,7 @@ rtmp_path := "live/moonbase"
 rtmp_url := "rtmp://127.0.0.1:1935/" + rtmp_path
 rtmp_hls := "http://127.0.0.1:8888/" + rtmp_path + "/index.m3u8"
 rtmp_dev_dir := justfile_directory() + "/.rtmp-dev"
+rtmp_conf := justfile_directory() + "/mediamtx.yml"
 mediamtx_version := "v1.11.3"
 
 # Resolve `docker` on Linux or through Docker Desktop on WSL2
@@ -110,31 +111,71 @@ rtmp-docker +cmd:
     fi
     cd "{{ justfile_directory() }}" && "$DOCKER" {{ cmd }}
 
+# Stop the native MediaMTX process if it is running
+[private]
+rtmp-stop-native:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    pidfile="{{ rtmp_dev_dir }}/mediamtx.pid"
+    if [[ -f "${pidfile}" ]]; then
+        pid="$(cat "${pidfile}")"
+        if kill -0 "${pid}" 2>/dev/null; then
+            kill "${pid}" || true
+        fi
+        rm -f "${pidfile}"
+    fi
+
 # Start MediaMTX: Docker when available, otherwise a local binary
 rtmp-up:
     #!/usr/bin/env bash
     set -euo pipefail
-    if just rtmp-up-docker 2>/dev/null; then
-        :
+    if just rtmp-docker version >/dev/null 2>&1; then
+        just rtmp-stop-native
+        just rtmp-docker compose -f {{ rtmp_compose }} up -d --force-recreate
     else
+        just rtmp-docker compose -f {{ rtmp_compose }} down 2>/dev/null || true
         echo "Docker niedostępny — uruchamiam MediaMTX z binarki (.rtmp-dev)…" >&2
+        just rtmp-stop-native
         just rtmp-up-native
     fi
     just rtmp-print-urls
 
-# Print publish / play URLs
+# Print publish / play URLs (WSL vs Windows — WSL2 ma inny address IP niż Windows)
 rtmp-print-urls:
-    @echo "RTMP publish/play: {{ rtmp_url }}"
-    @echo "HLS:               {{ rtmp_hls }}"
+    #!/usr/bin/env bash
+    set -euo pipefail
+    wsl_ip="$(ip -4 -o addr show eth0 2>/dev/null | awk '{print $4}' | cut -d/ -f1)"
+    if [[ -z "${wsl_ip}" ]]; then
+        wsl_ip="$(hostname -I 2>/dev/null | awk '{print $1}')"
+    fi
+    path="{{ rtmp_path }}"
+    echo "WSL — publikuj i odtwarzaj stąd (ffmpeg/ffplay w WSL):"
+    echo "  RTMP  rtmp://127.0.0.1:1935/${path}"
+    echo "  HLS   http://127.0.0.1:8888/${path}/index.m3u8"
+    echo ""
+    if [[ -n "${wsl_ip}" ]]; then
+        echo "Windows — VLC / ffplay na hoście (address WSL eth0, nie localhost):"
+        echo "  RTMP  rtmp://${wsl_ip}:1935/${path}"
+        echo "  HLS   http://${wsl_ip}:8888/${path}/index.m3u8"
+        echo "  (IP po restarcie WSL może się zmienić — ponów: just rtmp-urls)"
+    else
+        echo "Windows: nie wykryto IP WSL — w PowerShell: wsl hostname -I"
+    fi
 
-# MediaMTX in Docker (background)
+# Same as rtmp-print-urls (krótsza nazwa)
+rtmp-urls: rtmp-print-urls
+
+# MediaMTX in Docker (background); use `just rtmp-up` instead
 rtmp-up-docker:
-    @just rtmp-docker compose -f {{ rtmp_compose }} up -d
+    @just rtmp-stop-native
+    @just rtmp-docker compose -f {{ rtmp_compose }} up -d --force-recreate
 
 # MediaMTX binary for WSL without Docker Desktop integration
 rtmp-up-native:
     #!/usr/bin/env bash
     set -euo pipefail
+    root="{{ justfile_directory() }}"
+    conf="{{ rtmp_conf }}"
     dir="{{ rtmp_dev_dir }}"
     bin="${dir}/mediamtx"
     pidfile="${dir}/mediamtx.pid"
@@ -155,11 +196,11 @@ rtmp-up-native:
         tar -xzf "${tmp}/mediamtx.tgz" -C "${tmp}"
         mv "${tmp}/mediamtx" "${bin}"
     fi
-    if [[ -f "${pidfile}" ]] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
-        echo "MediaMTX już działa (pid $(cat "${pidfile}"))" >&2
-        exit 0
+    if [[ ! -f "${conf}" ]]; then
+        echo "Brak ${conf}" >&2
+        exit 1
     fi
-    nohup "${bin}" >"${dir}/mediamtx.log" 2>&1 &
+    nohup "${bin}" "${conf}" >"${dir}/mediamtx.log" 2>&1 &
     echo $! >"${pidfile}"
     sleep 0.5
     if ! kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
@@ -189,9 +230,15 @@ rtmp-down:
 rtmp-status:
     @just rtmp-docker compose -f {{ rtmp_compose }} ps
 
-# Follow MediaMTX logs
+# Follow MediaMTX logs (Docker or native)
 rtmp-logs:
-    @just rtmp-docker compose -f {{ rtmp_compose }} logs -f --tail 50
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if just rtmp-docker compose -f {{ rtmp_compose }} ps -q 2>/dev/null | grep -q .; then
+        just rtmp-docker compose -f {{ rtmp_compose }} logs -f --tail 50
+    else
+        tail -f "{{ rtmp_dev_dir }}/mediamtx.log"
+    fi
 
 # Test pattern + tone (same idea as bridge-encoder lavfi milestone)
 rtmp-publish-test path=rtmp_path:

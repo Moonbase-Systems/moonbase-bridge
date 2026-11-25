@@ -1,0 +1,12 @@
+# Dev RTMP/HLS for MoonBase Bridge tests (see docs/rtmp-dev.md).
+# MediaMTX v1.11+ requires explicit paths; default empty config rejects publish.
+
+pathDefaults:
+  source: publisher
+
+paths:
+  live/moonbase:
+    source: publisher
+
+  all_others:
+    source: publisher
