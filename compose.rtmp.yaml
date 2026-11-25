@@ -3,8 +3,12 @@
 
 services:
   mediamtx:
-    image: bluenviron/mediamtx:latest
+    image: bluenviron/mediamtx:1.11.3
     container_name: moonbase-mediamtx
+    # Image ENTRYPOINT is already `mediamtx`; only pass the config path.
+    command: ["/mediamtx.yml"]
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml:ro
     ports:
       - "1935:1935" # RTMP publish + play
       - "8554:8554" # RTSP (optional)
