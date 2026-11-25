@@ -53,6 +53,19 @@ just build
 ./target/release/moonbase-bridge --help
 ```
 
+### Local RTMP for streaming tests
+
+MediaMTX in Docker receives what Bridge (or FFmpeg) publishes. Full steps in [`docs/rtmp-dev.md`](./docs/rtmp-dev.md).
+
+```bash
+just rtmp-up            # start ingest on 127.0.0.1:1935
+just rtmp-publish-test  # test pattern until Bridge can push
+just rtmp-play          # watch in ffplay
+just rtmp-down          # stop the server
+```
+
+Default publish URL: `rtmp://127.0.0.1:1935/live/moonbase`.
+
 Logs go to stderr and to a daily file:
 
 - Windows: `%LOCALAPPDATA%\MoonBase\Bridge\logs`
