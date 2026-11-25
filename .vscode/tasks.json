@@ -56,6 +56,38 @@
       "command": "just test",
       "problemMatcher": ["$rustc"],
       "group": { "kind": "test", "isDefault": true }
+    },
+    {
+      "label": "RTMP: start MediaMTX",
+      "detail": "Docker compose — just rtmp-up",
+      "type": "shell",
+      "command": "just rtmp-up",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always" }
+    },
+    {
+      "label": "RTMP: test publish (ffmpeg)",
+      "detail": "testsrc + sine — just rtmp-publish-test",
+      "type": "shell",
+      "command": "just rtmp-publish-test",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "reveal": "always" }
+    },
+    {
+      "label": "RTMP: play in ffplay",
+      "type": "shell",
+      "command": "just rtmp-play",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated", "reveal": "always" }
+    },
+    {
+      "label": "RTMP: stop MediaMTX",
+      "type": "shell",
+      "command": "just rtmp-down",
+      "problemMatcher": [],
+      "presentation": { "reveal": "silent" }
     }
   ]
 }

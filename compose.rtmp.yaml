@@ -1,0 +1,12 @@
+# Local RTMP ingest for Bridge / FFmpeg dev tests.
+# `just rtmp-up` starts this stack; see docs/rtmp-dev.md.
+
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    container_name: moonbase-mediamtx
+    ports:
+      - "1935:1935" # RTMP publish + play
+      - "8554:8554" # RTSP (optional)
+      - "8888:8888" # HLS (optional, good for VLC)
+    restart: unless-stopped
